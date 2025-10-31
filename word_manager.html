@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Word Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        body {
+            background-color: #cbdce6;
+            font-family: 'Bubblegum Sans', cursive;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding-top: 120px;
+        }
+
+        .header {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 20px 40px;
+            box-sizing: border-box;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #cbdce6;
+            z-index: 1000;
+        }
+
+        .header i {
+            font-size: 40px;
+            color: #0a4174;
+            margin-right: 15px;
+        }
+
+        .header span {
+            font-size: 28px;
+            color: #0a4174;
+        }
+
+        h1 {
+            font-size: 60px;
+            color: #0a4174;
+            margin-top: 20px;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .container {
+            background-color: #6ea2b3;
+            padding: 50px;
+            border-radius: 25px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            text-align: center;
+            width: 600px;
+            max-width: 90%;
+        }
+
+        .box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #195061;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 20px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+        }
+
+        input, select {
+            width: 75%;
+            padding: 12px;
+            border: none;
+            border-radius: 20px;
+            font-size: 18px;
+            text-align: center;
+            outline: none;
+            background-color: #fefefe;
+            color: #000000;
+        }
+
+        select:invalid {
+            color: #6c6b6b;
+        }
+
+        button {
+            background-color: #10323d;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #4b7784;
+        }
+
+        #wordList {
+            background-color: #cbdce6;
+            border-radius: 15px;
+            padding: 20px;
+            font-size: 18px;
+            margin-top: 20px;
+            display: none;
+            text-align: left;
+        }
+
+        a {
+            color: #0a4174;
+            margin-top: 35px;
+            display: inline-block;
+            text-decoration: none;
+            font-size: 20px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <i class="fa-solid fa-user"></i>
+        <span>{{ user_name }}</span>
+    </div>
+
+    <h1>Word Manager</h1>
+
+    <div class="container">
+        <div class="box">
+            <input type="text" id="addInput" placeholder="Add a word">
+            <button onclick="addWord()">+</button>
+        </div>
+
+        <div class="box">
+            <select id="deleteSelect" required>
+                <option value="" disabled selected hidden>Delete a word</option>
+            </select>
+            <button onclick="deleteWord()">🗑</button>
+        </div>
+
+        <div class="box">
+            <select id="editSelect"  required style="margin-right: 10px;">
+                <option value="" disabled selected hidden>Edit a word</option>
+            </select>
+            <input type="text" id="editInput" placeholder="Edit the word" style="margin-right: 10px;">
+            <button onclick="editWord()">✎</button>
+        </div>
+
+        <div class="box">
+            <span style="color:white; font-size:20px; font-family:Verdana, Geneva, Tahoma, sans-serif">Display Words</span>
+            <button onclick="displayWords()">👁</button>
+        </div>
+
+        <div id="wordList"></div>
+    </div>
+
+    <a href="/dashboard" style="font-family: Verdana, Geneva, Tahoma, sans-serif;">← Back</a>
+
+    <script>
+async function loadWords() {
+    const res = await fetch("/display");
+    const data = await res.json();
+
+    const deleteSelect = document.getElementById("deleteSelect");
+    const editSelect = document.getElementById("editSelect");
+
+    deleteSelect.innerHTML = '<option value="" disabled selected hidden>Delete a word</option>';
+    editSelect.innerHTML = '<option value="" disabled selected hidden>Edit a word</option>';
+
+    data.words.forEach(word => {
+        const opt1 = document.createElement("option");
+        opt1.value = opt1.textContent = word;
+        deleteSelect.appendChild(opt1);
+
+        const opt2 = document.createElement("option");
+        opt2.value = opt2.textContent = word;
+        editSelect.appendChild(opt2);
+    });
+}
+
+async function addWord() {
+    const word = document.getElementById("addInput").value.trim();
+    if (!word) return alert("Please enter a word!");
+
+    const res = await fetch("/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ word })
+    });
+    const data = await res.json();
+    alert(data.message);
+    resetFields();
+    await loadWords();
+}
+
+async function deleteWord() {
+    const word = document.getElementById("deleteSelect").value;
+    if (!word) return alert("Please select a word!");
+
+    const res = await fetch("/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ word })
+    });
+    const data = await res.json();
+    alert(data.message);
+    resetFields();
+    await loadWords();
+}
+
+async function editWord() {
+    const old_word = document.getElementById("editSelect").value;
+    const new_word = document.getElementById("editInput").value.trim();
+    if (!new_word) return alert("Please enter a new word!");
+
+    const res = await fetch("/edit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ old_word, new_word })
+    });
+    const data = await res.json();
+    alert(data.message);
+    resetFields();
+    await loadWords();
+}
+
+async function displayWords() {
+    const res = await fetch("/display");
+    const data = await res.json();
+    const div = document.getElementById("wordList");
+
+    if (div.style.display === "block") {
+        div.style.display = "none";
+        div.innerHTML = "";
+        return;
+    }
+
+    div.style.display = "block";
+    if (data.words.length > 0) {
+        const listItems = data.words.map(word => `<li>${word}</li>`).join("");
+        div.innerHTML = `<b>Words (A–Z):</b><ul>${listItems}</ul>`;
+    } else {
+        div.innerHTML = "<b>No words found.</b>";
+    }
+}
+
+function resetFields() {
+    document.getElementById("addInput").value = "";
+    document.getElementById("editInput").value = "";
+    document.getElementById("wordList").style.display = "none";
+    document.getElementById("wordList").innerHTML = "";
+    document.getElementById("deleteSelect").selectedIndex = 0;
+    document.getElementById("editSelect").selectedIndex = 0;
+}
+
+// Load words fresh when page loads
+window.onload = loadWords;
+</script>
+
+</body>
+</html>

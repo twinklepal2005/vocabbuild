@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Take Quiz</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      background-color: #cbdce6;
+      font-family: 'Bubblegum Sans', cursive;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding-top: 120px;
+    }
+
+    .header {
+      width: 100%;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 20px 40px;
+      box-sizing: border-box;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: #cbdce6;
+      z-index: 1000;
+    }
+
+    .header i {
+      font-size: 40px;
+      color: #0a4174;
+      margin-right: 15px;
+    }
+
+    .header span {
+      font-size: 28px;
+      color: #0a4174;
+    }
+
+    h1 {
+      font-size: 60px;
+      color: #0a4174;
+      margin-bottom: 40px;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .container {
+      background-color: #e8f4f8;
+      padding: 50px;
+      border-radius: 25px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+      text-align: center;
+      width: 700px;
+      max-width: 90%;
+    }
+
+    select, button, input {
+      padding: 14px 22px;
+      font-size: 22px;
+      border: none;
+      border-radius: 25px;
+      outline: none;
+    }
+
+    button {
+      background-color: #0a4174;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #1062af;
+    }
+
+    .points-dialog {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      background-color: #e8f4f8;
+      border: 3px solid #1062af;
+      color: #0a4174;
+      font-size: 36px;
+      text-align: center;
+      padding: 40px 60px;
+      border-radius: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      animation: popIn 0.5s ease-out, fadeOut 1.5s ease-in 1.8s forwards;
+      z-index: 2000;
+      font-family: 'Bubblegum Sans', cursive;
+    }
+
+    .points-dialog .star-icon {
+      color: #1062af;
+      font-size: 45px;
+      margin-bottom: 10px;
+    }
+
+    .points-dialog .points-text {
+      font-size: 34px;
+      color: #0a4174;
+      display: inline-block;
+      margin-top: 10px;
+    }
+
+    @keyframes popIn {
+      0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+    }
+
+    /* Match the Following Styles */
+    table.match-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    table.match-table th, table.match-table td {
+      padding: 10px;
+      text-align: center;
+      font-size: 20px;
+    }
+
+    table.match-table th {
+      background-color: #f9c5c5;
+      color: #ff6b8b;
+    }
+
+    select.match-select {
+      padding: 8px 12px;
+      font-size: 18px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <i class="fa-solid fa-user"></i>
+    <span id="userName"></span>
+  </div>
+
+  <h1>Take Quiz</h1>
+  <div class="container" style="font-size: 30px; font-family: Verdana, Geneva, Tahoma, sans-serif;">
+    <div id="setup">
+      <p>Select how many questions you’d like:</p>
+      <select id="questionCount">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+        <option value="20">20</option>
+      </select><br>
+      <button onclick="startQuiz()" style="margin-top: 20px;">Start Quiz</button>
+    </div>
+
+    <div id="quizArea" style="display:none; text-align: left;">
+      <div id="questionText"></div>
+      <br>
+      <div id="answerInputs"></div>
+      <br>
+      <div id="feedback"></div>
+      <br>
+      <div id="correctAnswer"></div>
+      <br>
+      <button id="nextButton" onclick="nextQuestion()" style="display:none;">Next</button>
+    </div>
+
+    <div id="completeArea" style="display:none;">
+      <p style="font-size:32px; color:#0a4174;">🎉 Quiz Completed!</p>
+      <p id="scoreDisplay" style="font-size:26px; color:#444;"></p>
+      <button onclick="window.location.href='history.html'">📜 View History</button>
+      <button onclick="window.location.href='progress.html'">⭐ View Progress</button>
+      <button onclick="location.reload()">Take Again</button>
+    </div>
+  </div>
+
+  <script>
+    let user = "{{ user_name }}";
+
+    window.addEventListener("DOMContentLoaded", () => {
+      if (!user || user.trim() === "" || user === "None") {
+        window.location.href = "/login";
+      } else {
+        document.getElementById("userName").textContent = user;
+      }
+    });
+
+    let questions = [];
+    let current = 0;
+    let total = 0;
+    let score = 0;
+
+    async function startQuiz() {
+      total = parseInt(document.getElementById("questionCount").value);
+      const res = await fetch("/generate_quiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ count: total })
+      });
+      const data = await res.json();
+      questions = data.questions || [];
+      if (questions.length === 0) return alert("No quiz questions available!");
+      score = 0;
+      current = 0;
+      document.getElementById("setup").style.display = "none";
+      document.getElementById("quizArea").style.display = "block";
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const q = questions[current];
+      document.getElementById("feedback").innerHTML = "";
+      document.getElementById("correctAnswer").innerHTML = "";
+      document.getElementById("nextButton").style.display = "none";
+      document.getElementById("questionText").innerHTML = `(${current + 1}/${total}) ${q.prompt}`;
+
+      let html = "";
+
+      if (q.type === "mcq" && q.options) {
+        html = q.options.map(opt =>
+          `<div><input type="radio" name="answer" value="${opt}"> ${opt}</div>`
+        ).join("");
+      }
+
+      else if (q.type === "match" && q.pairs) {
+        const rightOptions = q.pairs.map(p => p.right);
+        html = `
+          <table class="match-table">
+            <tr><th>Column A</th><th>Column B</th></tr>
+            ${q.pairs.map((pair, i) => `
+              <tr>
+                <td>${pair.left}</td>
+                <td>
+                  <select id="match_${i}" class="match-select">
+                    <option value="">--Select--</option>
+                    ${rightOptions.map(opt => `<option value="${opt}">${opt}</option>`).join("")}
+                  </select>
+                </td>
+              </tr>
+            `).join("")}
+          </table>
+        `;
+      }
+
+      else {
+        html = `<input type="text" id="userInput" placeholder="Your answer here">`;
+      }
+
+      html += `<br><button onclick="submitAnswer()">Submit</button>`;
+      document.getElementById("answerInputs").innerHTML = html;
+    }
+
+    function submitAnswer() {
+      const q = questions[current];
+      let userAns;
+      let isCorrect = false;
+
+      if (q.type === "match") {
+        const userAnswers = q.pairs.map((_, i) => document.getElementById(`match_${i}`).value);
+        userAns = userAnswers;
+        isCorrect = JSON.stringify(userAnswers) === JSON.stringify(q.correctAnswer);
+      } else {
+        const sel = document.querySelector('input[name="answer"]:checked');
+        userAns = sel ? sel.value : document.getElementById("userInput")?.value.trim();
+        if (!userAns) return alert("Please answer first!");
+        isCorrect = userAns.toLowerCase() === (q.correctAnswer || "").toLowerCase();
+      }
+
+      questions[current].userAnswer = userAns;
+      showFeedback(isCorrect, q.correctAnswer);
+    }
+
+    function showFeedback(isCorrect, correct) {
+      const fb = document.getElementById("feedback");
+      const ca = document.getElementById("correctAnswer");
+      if (isCorrect) {
+        fb.innerHTML = "✅ Correct!";
+        score++;
+        showPointsDialog(5);
+      } else {
+        fb.innerHTML = "❌ Wrong!";
+        ca.innerHTML = `Correct Answer: <b>${Array.isArray(correct) ? correct.join(", ") : correct}</b>`;
+      }
+      document.getElementById("nextButton").style.display = "inline-block";
+    }
+
+    function nextQuestion() {
+      current++;
+      if (current >= total) {
+        document.getElementById("quizArea").style.display = "none";
+        document.getElementById("completeArea").style.display = "block";
+        document.getElementById("scoreDisplay").innerHTML = `Your Score: <b>${score}</b> / ${total}`;
+        saveQuizHistory();
+      } else showQuestion();
+    }
+
+    function saveQuizHistory() {
+      const key = `quizHistory_${user}`;
+      const history = JSON.parse(localStorage.getItem(key)) || [];
+
+      const questionsData = questions.map(q => ({
+        prompt: q.prompt,
+        correctAnswer: q.correctAnswer,
+        userAnswer: q.userAnswer || "—"
+      }));
+
+      const newQuiz = {
+        timestamp: new Date().toISOString(),
+        score: score,
+        total: total,
+        questions: questionsData
+      };
+
+      history.push(newQuiz);
+      localStorage.setItem(key, JSON.stringify(history));
+      updateExperience(score * 5);
+    }
+
+    function showPointsDialog(points) {
+      const dialog = document.createElement("div");
+      dialog.className = "points-dialog";
+      dialog.innerHTML = `
+        <i class="fa-solid fa-star star-icon"></i>
+        <br>
+        <span class="points-text">+${points} Points! 💙</span>
+      `;
+      document.body.appendChild(dialog);
+      setTimeout(() => dialog.remove(), 2500);
+    }
+
+    function updateExperience(points) {
+      const xpKey = `expPoints_${user}`;
+      let exp = parseInt(localStorage.getItem(xpKey) || "0");
+      exp += points;
+      localStorage.setItem(xpKey, exp);
+      localStorage.setItem(`lastGain_${user}`, points);
+    }
+  </script>
+</body>
+</html>

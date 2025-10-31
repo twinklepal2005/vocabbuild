@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Search Meaning | VocabBuild</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #cbdce6);
+      font-family: 'Bubblegum Sans', cursive;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding-top: 120px;
+    }
+
+    .header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      padding: 20px 40px;
+      box-sizing: border-box;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: linear-gradient(135deg, #cbdce6);
+      font-size: 28px;
+      color: #0a4174;
+      z-index: 1000;
+    }
+
+    .header i {
+      font-size: 40px;
+      margin-right: 15px;
+    }
+
+    h1 {
+      font-size: 60px;
+      color: #0a4174;
+      text-shadow: 3px 3px 8px rgba(0,0,0,0.3);
+      margin-top:20px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #6ea2b3;
+      padding: 40px 60px;
+      border-radius: 25px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 600px;
+      max-width: 90%;
+      margin-bottom: 30px;
+    }
+
+    input[type="text"] {
+      width: 75%;
+      padding: 12px;
+      border: none;
+      border-radius: 20px;
+      font-size: 18px;
+      text-align: center;
+      outline: none;
+      background-color: white;
+      color: black;
+      margin-bottom: 20px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    }
+
+    button {
+      background-color: #10323d;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 22px;
+      padding: 10px 30px;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.3s;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    }
+
+    button:hover {
+      background-color: #4b7784;
+      transform: scale(1.1);
+    }
+
+    .result-box {
+      background-color: rgba(255,255,255,0.7);
+      padding: 30px;
+      border-radius: 25px;
+      width: 70%;
+      max-width: 700px;
+      margin-bottom: 20px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+      font-size: 20px;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+      color: #0a4174;
+    }
+
+    ul {
+      margin-top: 10px;
+      text-align: left;
+    }
+
+    .flash {
+      color: #fff;
+      font-size: 18px;
+      margin-bottom: 20px;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    }
+
+    a {
+      color: #0a4174;
+      margin-top: 35px;
+      display: inline-block;
+      text-decoration: none;
+      font-size: 20px;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <i class="fa-solid fa-user"></i>
+    <span>{{ user_name }}</span>
+  </div>
+
+  <h1>Search Meaning</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, msg in messages %}
+        <div class="flash">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST">
+    <input type="text" name="word" placeholder="Enter a word" required>
+    <button type="submit">Search</button>
+  </form>
+
+  {% if word %}
+  <div class="result-box">
+    <strong>Word:</strong> {{ word }}<br>
+    <strong>Part of Speech:</strong> {{ full_pos }}<br><br>
+
+    {% if meaning %}
+      <strong>Meaning:</strong>
+      <p>{{ meaning }}</p>
+    {% endif %}
+
+    {% if examples %}
+      <strong>Examples:</strong>
+      <ul>
+        {% for ex in examples %}
+          <li>{{ ex }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <a href="/dashboard" style="font-family: Verdana, Geneva, Tahoma, sans-serif;">← Back</a>
+</body>
+</html>

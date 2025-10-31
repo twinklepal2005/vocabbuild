@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard | VocabBuild</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #cbdce6);
+            margin: 0;
+            font-family: 'Bubblegum Sans', cursive;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            padding: 20px 40px;
+            box-sizing: border-box;
+        }
+
+        .header i {
+            font-size: 40px;
+            color:#0a4174;
+            margin-right: 15px;
+        }
+
+        .header span {
+            font-size: 28px;
+            color:#0a4174;
+        }
+
+        h1 {
+            font-size: 80px;
+            color:#0a4174;
+            text-shadow: 3px 3px 8px rgba(0,0,0,0.3);
+            margin: 30px 0;
+        }
+
+        /* Box container */
+        .box-container {
+            display: grid;
+            grid-template-columns: repeat(3, 250px);
+            gap: 70px;
+            justify-content: center;
+        }
+
+        /* Second row adjustment (2 boxes centered) */
+        .second-row {
+            grid-column: span 3;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 5px;
+        }
+
+        .box {
+            background-color: #0a4174;
+            border-radius: 25px;
+            width: 200px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            padding: 40px;
+            text-align: center;
+            font-size: xx-large;
+            color: #ffffff;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .box:hover {
+            transform: scale(1.08);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <i class="fa-solid fa-user"></i>
+        <span>{{ user_name }}</span>
+    </div>
+
+    <h1 style="margin-top: 50px;">VocabBuild</h1>
+</br>
+</br>
+
+    <div class="box-container" style="margin-top: 25px;">
+         <a href="{{ url_for('word_manager') }}" class="box" style="text-decoration:none;">Modify Words</a>
+        <a href="{{ url_for('search_word') }}" class="box" style="text-decoration:none;">Search Meaning</a>
+        <a href="{{ url_for('dashboard2') }}" class="box" style="text-decoration:none;">Take Quizzes</a>
+
+        <div class="second-row">
+            <a href="{{ url_for('synonyms_page') }}" class="box" style="text-decoration:none;">Synonyms</a>
+
+             <a href="{{ url_for('antonyms_page') }}" class="box" style="text-decoration:none;">Antonyms</a>
+
+        </div>
+    </div>
+</body>
+</html>

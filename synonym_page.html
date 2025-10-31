@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Synonym Explorer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        body {
+            background-color: #f6c1c1;
+            font-family: 'Bubblegum Sans', cursive;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+       .header {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start; /* moves icon + name to the left */
+    align-items: center;
+    padding: 20px 40px;
+    box-sizing: border-box;
+    position: fixed;   /* keeps it at the top */
+    top: 0;
+    left: 0;
+    /* optional: prevents overlap issues */
+    z-index: 1000;
+}
+
+
+        .header i {
+            font-size: 40px;
+            color: #d0183d;
+            margin-right: 15px;
+        }
+
+        .header span {
+            font-size: 28px;
+            color: #d0183d;
+        }
+
+
+        h1 {
+            font-size: 60px;
+            color: #b3243e;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .container {
+            background-color: #fce6e6;
+            padding: 70px;
+            border-radius: 25px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            text-align: center;
+            width: 700px;
+            max-width: 95%;
+            transition: all 0.3s ease-in-out;
+        }
+
+        input {
+            padding: 14px 22px;
+            border: none;
+            border-radius: 25px;
+            width: 80%;
+            font-size: 22px;
+            outline: none;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        button {
+            background-color: #b3243e;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 14px 30px;
+            font-size: 22px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #d63a54;
+        }
+
+        .synonyms {
+            margin-top: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 14px;
+        }
+
+        .synonym {
+            background-color: #f29ca3;
+            color: white;
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-size: 20px;
+            transition: transform 0.2s;
+        }
+
+        .synonym:hover {
+            transform: scale(1.05);
+        }
+
+        .toggle-btn {
+            color: #b3243e;
+            margin-top: 25px;
+            cursor: pointer;
+            font-size: 20px;
+            display: inline-block;
+        }
+
+        .examples {
+            margin-top: 25px;
+            text-align: left;
+            background-color: #ffe3e3;
+            border-radius: 15px;
+            padding: 20px;
+            font-size: 18px;
+        }
+
+        a {
+            color: #b3243e;
+            margin-top: 35px;
+            display: inline-block;
+            text-decoration: none;
+            font-size: 20px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+  <div class="header">
+        <i class="fa-solid fa-user"></i>
+        <span>{{ user_name }}</span>
+    </div>
+    <h1>Synonym Explorer</h1>
+
+    <div class="container">
+        <form method="POST">
+            <input type="text" name="word" placeholder="Enter a word..." value="{{ word or '' }}" required>
+            <br>
+            <button type="submit">Find Synonyms</button>
+        </form>
+
+        {% if synonyms %}
+            <div class="synonyms" id="synonymsContainer">
+                {% for synonym in synonyms[:5] %}
+                    <div class="synonym">{{ synonym }}</div>
+                {% endfor %}
+            </div>
+
+            {% if synonyms|length > 5 %}
+                <div class="toggle-btn" id="toggleButton" onclick="toggleSynonyms()">...more</div>
+            {% endif %}
+
+            {% if examples %}
+                <div class="examples">
+                    <h3 style="color:#b3243e; text-align:center;">Usage Examples</h3>
+                    {% for syn, ex in examples.items() %}
+                        <p><b>{{ syn }}:</b> {{ ex }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% else %}
+            <p style="margin-top: 30px; font-size: 18px; color: #b3243e;">Type a word to explore its synonyms!</p>
+        {% endif %}
+    </div>
+
+    <a href="#">← Back to Dashboard</a>
+
+    <script id="synonyms-data" type="application/json">
+        {{ synonyms | tojson | safe }}
+    </script>
+
+    <script>
+        const allSynonyms = JSON.parse(document.getElementById("synonyms-data").textContent || "[]");
+        const container = document.getElementById('synonymsContainer');
+        const toggleButton = document.getElementById('toggleButton');
+        let expanded = false;
+
+        function renderSynonyms(list) {
+            container.innerHTML = '';
+            list.forEach(syn => {
+                const div = document.createElement('div');
+                div.classList.add('synonym');
+                div.textContent = syn;
+                container.appendChild(div);
+            });
+        }
+
+        function toggleSynonyms() {
+            if (!expanded) {
+                renderSynonyms(allSynonyms);
+                toggleButton.textContent = 'less';
+                expanded = true;
+            } else {
+                renderSynonyms(allSynonyms.slice(0, 5));
+                toggleButton.textContent = '...more';
+                expanded = false;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz History</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #cbdce6;
+      font-family: 'Bubblegum Sans', cursive;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+      margin: 0;
+    }
+    h1 {
+      font-size: 60px;
+      color: #0a4174;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+    }
+    .history-container {
+      background: #e8f4f8;
+      border-radius: 25px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+      padding: 40px;
+      width: 700px;
+      max-width: 90%;
+    }
+    .quiz-entry {
+      background: #fff;
+      margin: 15px 0;
+      padding: 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 22px;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+      color: #0a4174;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    }
+    .quiz-entry:hover {
+      background: #fff;
+      transform: scale(1.02);
+    }
+    .details {
+      display: none;
+      margin-top: 15px;
+      font-size: 18px;
+      color: #444;
+      background: #f1f5f798;
+      border-radius: 15px;
+      padding: 15px;
+    }
+    .details p {
+      margin: 8px 0;
+      border-bottom: 1px dashed #ccc;
+      padding-bottom: 5px;
+    }
+    .details p:last-child {
+      border-bottom: none;
+    }
+    .back-btn {
+      margin-top: 30px;
+      background-color: #0a4174;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      padding: 15px 40px;
+      font-size: 22px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .back-btn:hover {
+      background-color: #1062af;
+      transform: scale(1.05);
+    }
+    .empty-message {
+      font-size: 26px;
+      color: #555;
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>📜 Quiz History</h1>
+  <div class="history-container" id="historyContainer"></div>
+  <button class="back-btn" onclick="location.href='/dashboard2'">⬅ Back</button>
+
+  <script>
+    // ✅ User-based history key
+    const user = "{{ user_name }}";  // Passed from Flask session
+    const key = `quizHistory_${user}`;
+    const historyContainer = document.getElementById("historyContainer");
+
+    // ✅ Fetch history
+    const history = JSON.parse(localStorage.getItem(key)) || [];
+
+    // ✅ Display if empty
+    if (history.length === 0) {
+      historyContainer.innerHTML = "<div class='empty-message'>No quiz history yet!</div>";
+    } else {
+      // ✅ Display quiz records (newest first)
+      history.slice().reverse().forEach((item, index) => {
+        const div = document.createElement("div");
+        div.className = "quiz-entry";
+
+        const quizNumber = history.length - index;
+
+        // ✅ Handle timestamp safely
+        let formattedDate = "Unknown Date";
+        let formattedTime = "Unknown Time";
+        if (item.timestamp) {
+          const d = new Date(item.timestamp);
+          if (!isNaN(d.getTime())) {
+            formattedDate = d.toLocaleDateString();
+            formattedTime = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          }
+        }
+
+        div.innerHTML = `
+          <div><b>Quiz #${quizNumber}</b> 🕒 ${formattedDate}, ${formattedTime}</div>
+          <div>🏆 Score: ${item.score} / ${item.total}</div>
+          <div class="details">
+            ${item.questions.map((q, i) => `
+              <p>
+                <b>Q${i + 1}:</b> ${q.prompt}<br>
+                <b>Your Answer:</b> ${q.userAnswer || "—"}<br>
+                <b>Correct:</b> ${q.correctAnswer}
+              </p>
+            `).join("")}
+          </div>
+        `;
+
+        // ✅ Expand/Collapse details
+        div.addEventListener("click", () => {
+          const det = div.querySelector(".details");
+          det.style.display = det.style.display === "block" ? "none" : "block";
+        });
+
+        historyContainer.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>

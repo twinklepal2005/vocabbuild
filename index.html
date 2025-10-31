@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VocabBuild</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg,  #cbdce6);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            font-family: 'Bubblegum Sans', cursive;
+            font-size: 100px;
+            color: #0a4174;
+            text-shadow: 4px 4px 8px rgba(0,0,0,0.3);
+            margin-bottom: 90px;
+        }
+
+        button {
+            font-family: 'Bubblegum Sans', cursive;
+            font-size: 35px;
+            margin-bottom: 90px;
+            margin-top: -40px;
+            background-color: #a9d2ea;
+            border: none;
+            border-radius: 30px;
+            padding: 15px 60px;
+            cursor: pointer;
+            color:  #0a4174;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            
+            transition: transform 0.2s ease-in-out, opacity 0.3s ease-in-out;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        button:hover {
+            animation: none; /* stops blinking */
+            opacity: 1; /* stays fully visible */
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>VocabBuild</h1>
+    <button onclick="window.location.href='/register'">Start</button>
+</body>
+</html>
