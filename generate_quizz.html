@@ -106,6 +106,17 @@
       display: inline-block;
       margin-top: 10px;
     }
+    a {
+      color: #0a4174;
+      margin-top: 35px;
+      display: inline-block;
+      text-decoration: none;
+      font-size: 20px;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
 
     @keyframes popIn {
       0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
@@ -160,6 +171,7 @@
       </select><br>
       <button onclick="startQuiz()" style="margin-top: 20px;">Start Quiz</button>
     </div>
+    
 
     <div id="quizArea" style="display:none; text-align: left;">
       <div id="questionText"></div>
@@ -172,7 +184,7 @@
       <br>
       <button id="nextButton" onclick="nextQuestion()" style="display:none;">Next</button>
     </div>
-
+       
     <div id="completeArea" style="display:none;">
       <p style="font-size:32px; color:#0a4174;">🎉 Quiz Completed!</p>
       <p id="scoreDisplay" style="font-size:26px; color:#444;"></p>
@@ -181,7 +193,7 @@
       <button onclick="location.reload()">Take Again</button>
     </div>
   </div>
-
+<a href="/dashboard" style="font-family: Verdana, Geneva, Tahoma, sans-serif;">← Back</a> 
   <script>
     let user = "{{ user_name }}";
 
@@ -224,11 +236,11 @@
 
       let html = "";
 
-      if (q.type === "mcq" && q.options) {
-        html = q.options.map(opt =>
-          `<div><input type="radio" name="answer" value="${opt}"> ${opt}</div>`
-        ).join("");
-      }
+     if ((q.type === "mcq" || q.type === "fillup"|| q.type === "direct") && q.options) {
+  html = q.options.map(opt =>
+    `<div><input type="radio" name="answer" value="${opt}"> ${opt}</div>`
+  ).join("");
+}
 
       else if (q.type === "match" && q.pairs) {
         const rightOptions = q.pairs.map(p => p.right);
@@ -250,9 +262,9 @@
         `;
       }
 
-      else {
-        html = `<input type="text" id="userInput" placeholder="Your answer here">`;
-      }
+   else {
+  html = `<input type="text" id="userInput" placeholder="Your answer here">`;
+}
 
       html += `<br><button onclick="submitAnswer()">Submit</button>`;
       document.getElementById("answerInputs").innerHTML = html;
