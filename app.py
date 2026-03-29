@@ -436,7 +436,7 @@ def generate_quiz():
     f"For each question, return a JSON object with:\n"
     f"  - 'type': one of mcq, fillup, or direct\n"
     f"  - 'prompt': the question text\n"
-    f"  - 'options': an array of 4 options (only for mcq type)\n"
+    f"  - 'options': an array of 4 options (for all mcq, fillup and direct type)\n"
     f"  - 'correctAnswer': the exact correct answer string\n\n"
     f"Ensure the response is a VALID JSON ARRAY ONLY with no explanations, code blocks, or markdown.\n"
     f"Make questions short, clear, and beginner-friendly."
