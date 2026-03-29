@@ -1,0 +1,6 @@
+Flask
+mysql-connector-python
+requests
+spacy
+python-dotenv
+google-generativeai
